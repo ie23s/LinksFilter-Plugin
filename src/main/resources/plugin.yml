@@ -1,0 +1,7 @@
+name: LinksFilter
+main: com.ie23s.minecraft.plugin.linksfilter.Main
+author: ie23s
+version: 0.1-SNAPSHOT
+commands:
+  linksfilter:
+    aliases: [lf]

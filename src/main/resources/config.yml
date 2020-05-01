@@ -1,0 +1,72 @@
+linkfilter:
+  lang: en
+
+  #Please, don't try to enable whitelist and blacklist together...
+  whitelist: true #Enabling whitelist
+  blacklist: false #Enabling blacklist
+
+  #Enabling links cutter.
+  shortlinks: false
+
+  #MySQL configuration. It should be obviously.
+  #Set it up, only if you need it
+  mysql:
+    host: localhost
+    port: 3306
+    user: db_user
+    password: ''
+    database: db_name
+    prefix: lf_
+
+  #LinksFilter PHP API configuration.
+  #Set it up, only if you need it
+  api:
+    url: https://example.com/api.php #Link to api.php file
+    key: none #You'll get it after installing script
+shortlinks:
+  ################################################################################################
+  # Mode of ShortLinks module.                                                                   #
+  #                                                                                              #
+  # MySQL mode requires MySQL configuration and installing LinksFilter API to your web-server    #
+  # (You needn't to set up API configuration with MySQL mode) and put redirect link in mysql     #
+  # config of this part.                                                                         #
+  #                                                                                              #
+  # Cuttly mode is a mode, which cuts links. You should register on https://cutt.ly/ service     #
+  #                                                                                              #
+  # LinksFilter mode uses LinksFilter PHP API and needs installing and configuring API           #
+  ################################################################################################
+  mode: cuttly
+
+  #Cuttly API configuration
+  cuttly:
+    api_key: none
+
+  #MySQL Redirect link
+  mysql:
+    url: https://example.com/{id}
+
+whitelist:
+  ################################################################################################
+  # Mode of WhiteLust module.                                                                    #
+  #                                                                                              #
+  # YML mode saves list in whitelist.yml file                                                    #
+  #                                                                                              #
+  # MySQL mode requires MySQL configuration.                                                     #
+  #                                                                                              #
+  # LinksFilter mode uses LinksFilter PHP API and needs installing and configuring API           #
+  ################################################################################################
+  mode: yml #yml, mysql, linkfilter
+
+blacklist:
+  ################################################################################################
+  # Mode of BlackList module.                                                                    #
+  #                                                                                              #
+  # YML mode saves list in blacklist.yml file                                                    #
+  #                                                                                              #
+  # MySQL mode requires MySQL configuration.                                                     #
+  #                                                                                              #
+  # LinksFilter mode uses LinksFilter PHP API and needs installing and configuring API           #
+  ################################################################################################
+  mode: yml
+
+debug: false #You needn't it) Joke)))
