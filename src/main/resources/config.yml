@@ -24,7 +24,9 @@ linkfilter:
     url: https://example.com/api.php #Link to api.php file
     key: none #You'll get it after installing script
 
+  #Enable commands checking
   enable_commands: true
+  #List of commands
   commands:
     - m
 
