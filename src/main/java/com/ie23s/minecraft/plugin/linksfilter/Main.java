@@ -33,7 +33,7 @@ public class Main extends JavaPlugin {
 		config = super.getConfig();
 		lang = new Lang(this);
 
-		lang.load(config.getString("linksfilter.lang"));
+		lang.load(config.getString("linkfilter.lang"));
 
 		initMySQL();
 		initWhitelist();

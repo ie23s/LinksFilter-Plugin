@@ -19,6 +19,7 @@ public class Lang {
         } catch (Exception e) {
             ((Main) plugin).getInnerLogger().warn("Something wrong, loading default language!");
             loadDef();
+            e.printStackTrace();
         }
     }
 
