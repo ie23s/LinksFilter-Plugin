@@ -36,7 +36,7 @@ public class CommandListener implements Listener {
     )
     public void PlayerCommand(PlayerCommandPreprocessEvent event) {
         String message = event.getMessage();
-        System.out.println(message);
+
         boolean isCommand = false;
 
         for (String cmd : plugin.getConfig().getStringList("linkfilter.commands")) {
@@ -49,73 +49,82 @@ public class CommandListener implements Listener {
 
         URLUtil urlUtil = new URLUtil(message);
         URLUtil.URL[] urls = urlUtil.getURLs();
+
         if (urls == null || urls.length == 0)
             return;
+
         if (shortLink != null) {
             event.getPlayer().sendMessage(lang.getMessage("cutting"));
         }
-        for (URLUtil.URL url :
-                urls) {
-            if (blackList != null || whiteList != null)
-                url.generateSubHosts();
+        event.setCancelled(true);
+        new Thread(() -> {
+            String msg = null;
+            for (URLUtil.URL url :
+                    urls) {
+                if (blackList != null || whiteList != null)
+                    url.generateSubHosts();
 
-            if (whiteList != null) {
-                try {
-                    if (!whiteList.findInList(url.getHostname(), url.getSubHosts())) {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage(lang.getMessage("not_whitelisted", url.getHostname()));
+                if (whiteList != null) {
+                    try {
+                        if (!whiteList.findInList(url.getHostname(), url.getSubHosts())) {
+                            event.getPlayer().sendMessage(lang.getMessage("not_whitelisted", url.getHostname()));
+                            return;
+                        }
+                    } catch (Exception e) {
+                        if (Error.find(e.getMessage()) != null) {
+                            if (Error.CONNECTION_ERROR.equals(e.getMessage()))
+                                event.getPlayer().sendMessage(lang.getMessage("connection_error"));
+                        } else {
+                            event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
+                            plugin.getInnerLogger().error(e.toString());
+                        }
                         return;
                     }
-                } catch (Exception e) {
-                    if (Error.find(e.getMessage()) != null) {
-                        if (Error.CONNECTION_ERROR.equals(e.getMessage()))
-                            event.getPlayer().sendMessage(lang.getMessage("connection_error"));
-                    } else {
-                        event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
-                        plugin.getInnerLogger().error(e.toString());
-                    }
-                }
-            } else if (blackList != null) {
-                try {
-                    if (blackList.findInList(url.getHostname(), url.getSubHosts())) {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage(lang.getMessage("blacklisted", url.getHostname()));
-                        return;
-                    }
-                } catch (Exception e) {
-                    if (Error.find(e.getMessage()) != null) {
-                        if (Error.CONNECTION_ERROR.equals(e.getMessage()))
-                            event.getPlayer().sendMessage(lang.getMessage("connection_error"));
-
-                    } else {
-                        event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
-                        plugin.getInnerLogger().error(e.toString());
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-
-            if (shortLink != null) {
-                try {
-                    message = message.replaceFirst(url.getUrl(),
-                            shortLink.cutLink(url.getUrl(), event.getPlayer().getDisplayName()));
-                } catch (Exception e) {
-                    if (Error.find(e.getMessage()) != null) {
-                        if (Error.CONNECTION_ERROR.equals(e.getMessage()))
-                            event.getPlayer().sendMessage(lang.getMessage("connection_error"));
-
-                        if (Error.CUTTLY_BLACKLIST.equals(e.getMessage()))
+                } else if (blackList != null) {
+                    try {
+                        if (blackList.findInList(url.getHostname(), url.getSubHosts())) {
                             event.getPlayer().sendMessage(lang.getMessage("blacklisted", url.getHostname()));
-                    } else {
-                        event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
-                        plugin.getInnerLogger().error(e.toString());
-                        e.printStackTrace();
+                            return;
+                        }
+                    } catch (Exception e) {
+                        if (Error.find(e.getMessage()) != null) {
+                            if (Error.CONNECTION_ERROR.equals(e.getMessage()))
+                                event.getPlayer().sendMessage(lang.getMessage("connection_error"));
+
+                        } else {
+                            event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
+                            plugin.getInnerLogger().error(e.toString());
+                            e.printStackTrace();
+                        }
+                        return;
                     }
                 }
 
+
+                if (shortLink != null) {
+                    try {
+                        msg = message.replaceFirst(url.getUrl(),
+                                shortLink.cutLink(url.getUrl(), event.getPlayer().getDisplayName()));
+                    } catch (Exception e) {
+                        if (Error.find(e.getMessage()) != null) {
+                            if (Error.CONNECTION_ERROR.equals(e.getMessage()))
+                                event.getPlayer().sendMessage(lang.getMessage("connection_error"));
+
+                            if (Error.CUTTLY_BLACKLIST.equals(e.getMessage()))
+                                event.getPlayer().sendMessage(lang.getMessage("blacklisted", url.getHostname()));
+                        } else {
+                            event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
+                            plugin.getInnerLogger().error(e.toString());
+                            e.printStackTrace();
+                        }
+                        return;
+                    }
+
+                }
             }
-        }
-        event.setMessage(message);
+            if (msg != null) {
+                event.getPlayer().performCommand((msg).substring(1));
+            }
+        }).start();
     }
 }
