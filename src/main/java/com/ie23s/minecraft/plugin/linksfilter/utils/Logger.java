@@ -13,6 +13,7 @@ public class Logger {
         this.logger = logger;
     }
 
+    @SuppressWarnings("unused")
     public void info(String msg) {
         logger.info(msg);
     }
