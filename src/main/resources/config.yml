@@ -23,6 +23,11 @@ linkfilter:
   api:
     url: https://example.com/api.php #Link to api.php file
     key: none #You'll get it after installing script
+
+  enable_commands: true
+  commands:
+    - m
+
 shortlinks:
   ################################################################################################
   # Mode of ShortLinks module.                                                                   #

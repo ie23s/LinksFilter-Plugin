@@ -2,6 +2,7 @@ package com.ie23s.minecraft.plugin.linksfilter;
 
 import com.ie23s.minecraft.plugin.linksfilter.command.Commands;
 import com.ie23s.minecraft.plugin.linksfilter.event.ChatListener;
+import com.ie23s.minecraft.plugin.linksfilter.event.CommandListener;
 import com.ie23s.minecraft.plugin.linksfilter.model.BlackList;
 import com.ie23s.minecraft.plugin.linksfilter.model.ShortLink;
 import com.ie23s.minecraft.plugin.linksfilter.model.WhiteList;
@@ -31,6 +32,10 @@ public class Main extends JavaPlugin {
 		logger = new Logger(this, super.getLogger());
 		reloadConfig();
 		config = super.getConfig();
+
+		config.options().copyDefaults(true);
+		saveConfig();
+
 		lang = new Lang(this);
 
 		lang.load(config.getString("linkfilter.lang"));
@@ -41,6 +46,10 @@ public class Main extends JavaPlugin {
 		initShortLinks();
 
 		Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
+
+		if (config.getBoolean("linkfilter.enable_commands"))
+			Bukkit.getPluginManager().registerEvents(new CommandListener(this), this);
+
 		this.getCommand("linksfilter").setExecutor(new Commands(this));
 	}
 
