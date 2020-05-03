@@ -10,10 +10,10 @@ import com.ie23s.minecraft.plugin.linksfilter.utils.yml.Lang;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class ChatListener implements Listener {
+public class CommandListener implements Listener {
     private final Main plugin;
     private final Lang lang;
 
@@ -21,7 +21,7 @@ public class ChatListener implements Listener {
     private final WhiteList whiteList;
     private final ShortLink shortLink;
 
-    public ChatListener(@NotNull Main plugin) {
+    public CommandListener(@NotNull Main plugin) {
         this.plugin = plugin;
 
         lang = plugin.getLang();
@@ -34,17 +34,26 @@ public class ChatListener implements Listener {
     @EventHandler(
             priority = EventPriority.MONITOR
     )
-    public void AsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
+    public void PlayerCommand(PlayerCommandPreprocessEvent event) {
         String message = event.getMessage();
+        System.out.println(message);
+        boolean isCommand = false;
+
+        for (String cmd : plugin.getConfig().getStringList("linkfilter.commands")) {
+            if (cmd.equalsIgnoreCase(message.substring(1).split(" ")[0])) {
+                isCommand = true;
+                break;
+            }
+        }
+        if (!isCommand) return;
+
         URLUtil urlUtil = new URLUtil(message);
         URLUtil.URL[] urls = urlUtil.getURLs();
         if (urls == null || urls.length == 0)
             return;
-
         if (shortLink != null) {
             event.getPlayer().sendMessage(lang.getMessage("cutting"));
         }
-
         for (URLUtil.URL url :
                 urls) {
             if (blackList != null || whiteList != null)
@@ -107,6 +116,6 @@ public class ChatListener implements Listener {
 
             }
         }
-		event.setMessage(message);
-	}
+        event.setMessage(message);
+    }
 }
