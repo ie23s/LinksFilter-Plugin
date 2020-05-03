@@ -1,7 +1,7 @@
 # LinksFilter is a Bukkit plugin which filters links sent to chat.
 ## Description
 LinksFilter can control links which users send to chat using blacklist or whitelist. Also this plugin can cut links using cutt.ly service or your own site.
-##Configuration
+## Configuration
 ```yaml
 linkfilter:
   lang: en
@@ -87,7 +87,7 @@ debug: false #You needn't it) Joke)))
 
 /lf reload  —  linksfilter.reload  —  reload plugin.
 
-### Examples
+## Examples
 > /lf whitelist add *.example.com  — allows access to all subdomains of example.com (example.example.com, 1.example.com, example.com etc.);
 
 > /lf whitelist add *.example.com  — allows only access to example.com.
