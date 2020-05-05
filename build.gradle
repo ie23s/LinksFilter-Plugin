@@ -4,6 +4,7 @@ plugins {
 }
 
 group 'com.ie23s.minecraft.plugin.linksfilter'
+
 version '0.1.4-Beta'
 
 sourceCompatibility = 1.8
