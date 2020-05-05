@@ -21,8 +21,6 @@ public class ChatListener implements Listener {
     private final Main plugin;
     private final Lang lang;
 
-    private final BlackList blackList;
-    private final WhiteList whiteList;
     private final ShortLink shortLink;
 
     private final List<String> uuids = new ArrayList<>();
@@ -32,15 +30,62 @@ public class ChatListener implements Listener {
 
         lang = plugin.getLang();
 
-        blackList = plugin.getBlackList();
-        whiteList = plugin.getWhiteList();
         shortLink = plugin.getShortLink();
+    }
+
+    static boolean checkLists(Main plugin, AsyncPlayerChatEvent event, URLUtil.URL url) {
+        final BlackList blackList = plugin.getBlackList();
+        final WhiteList whiteList = plugin.getWhiteList();
+
+        final Lang lang = plugin.getLang();
+
+        if (blackList != null || whiteList != null)
+            url.generateSubHosts();
+
+        if (whiteList != null) {
+            try {
+                if (!whiteList.findInList(url.getHostname(), url.getSubHosts())) {
+                    event.getPlayer().sendMessage(lang.getMessage("not_whitelisted", url.getHostname()));
+                    return true;
+                }
+            } catch (Exception e) {
+                if (Error.find(e.getMessage()) != null) {
+                    if (Error.CONNECTION_ERROR.equals(e.getMessage()))
+                        event.getPlayer().sendMessage(lang.getMessage("connection_error"));
+                } else {
+                    event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
+                    plugin.getInnerLogger().error(e.toString());
+                }
+                return true;
+            }
+        } else if (blackList != null) {
+            try {
+                if (blackList.findInList(url.getHostname(), url.getSubHosts())) {
+                    event.getPlayer().sendMessage(lang.getMessage("blacklisted", url.getHostname()));
+                    return true;
+                }
+            } catch (Exception e) {
+                if (Error.find(e.getMessage()) != null) {
+                    if (Error.CONNECTION_ERROR.equals(e.getMessage()))
+                        event.getPlayer().sendMessage(lang.getMessage("connection_error"));
+
+                } else {
+                    event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
+                    plugin.getInnerLogger().error(e.toString());
+                    e.printStackTrace();
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @EventHandler(
             priority = EventPriority.MONITOR
     )
     public void AsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
+        event.getRecipients();
 
         String message = event.getMessage();
 
@@ -67,44 +112,9 @@ public class ChatListener implements Listener {
             String msg = message;
             for (URLUtil.URL url :
                     urls) {
-                if (blackList != null || whiteList != null)
-                    url.generateSubHosts();
 
-                if (whiteList != null) {
-                    try {
-                        if (!whiteList.findInList(url.getHostname(), url.getSubHosts())) {
-                            event.getPlayer().sendMessage(lang.getMessage("not_whitelisted", url.getHostname()));
-                            return;
-                        }
-                    } catch (Exception e) {
-                        if (Error.find(e.getMessage()) != null) {
-                            if (Error.CONNECTION_ERROR.equals(e.getMessage()))
-                                event.getPlayer().sendMessage(lang.getMessage("connection_error"));
-                        } else {
-                            event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
-                            plugin.getInnerLogger().error(e.toString());
-                        }
-                        return;
-                    }
-                } else if (blackList != null) {
-                    try {
-                        if (blackList.findInList(url.getHostname(), url.getSubHosts())) {
-                            event.getPlayer().sendMessage(lang.getMessage("blacklisted", url.getHostname()));
-                            return;
-                        }
-                    } catch (Exception e) {
-                        if (Error.find(e.getMessage()) != null) {
-                            if (Error.CONNECTION_ERROR.equals(e.getMessage()))
-                                event.getPlayer().sendMessage(lang.getMessage("connection_error"));
-
-                        } else {
-                            event.getPlayer().sendMessage(lang.getMessage("unknown_error"));
-                            plugin.getInnerLogger().error(e.toString());
-                            e.printStackTrace();
-                        }
-                        return;
-                    }
-                }
+                if (checkLists(plugin, event, url))
+                    return;
 
                 if (shortLink != null) {
                     try {

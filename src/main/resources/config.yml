@@ -30,6 +30,9 @@ linkfilter:
   commands:
     - m
 
+  #test function; enabling minecraft json messages
+  enable_json: true
+
 shortlinks:
   ################################################################################################
   # Mode of ShortLinks module.                                                                   #

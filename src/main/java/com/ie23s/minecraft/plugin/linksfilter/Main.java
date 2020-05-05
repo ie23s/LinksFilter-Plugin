@@ -3,6 +3,7 @@ package com.ie23s.minecraft.plugin.linksfilter;
 import com.ie23s.minecraft.plugin.linksfilter.command.Commands;
 import com.ie23s.minecraft.plugin.linksfilter.event.ChatListener;
 import com.ie23s.minecraft.plugin.linksfilter.event.CommandListener;
+import com.ie23s.minecraft.plugin.linksfilter.event.JsonChatListener;
 import com.ie23s.minecraft.plugin.linksfilter.model.BlackList;
 import com.ie23s.minecraft.plugin.linksfilter.model.ShortLink;
 import com.ie23s.minecraft.plugin.linksfilter.model.WhiteList;
@@ -45,7 +46,10 @@ public class Main extends JavaPlugin {
 		initBlacklist();
 		initShortLinks();
 
-		Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
+		if (config.getBoolean("linkfilter.enable_json"))
+			Bukkit.getPluginManager().registerEvents(new JsonChatListener(this), this);
+		else
+			Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
 
 		if (config.getBoolean("linkfilter.enable_commands"))
 			Bukkit.getPluginManager().registerEvents(new CommandListener(this), this);
